@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
+const db=require("./con");
 // const authRouter=require('./routers/auth');
 const phnRouter = require("./routers/phn");
 const tripRouter = require("./routers/trip");
@@ -11,7 +12,7 @@ app.get("/", (req, res) => {
   res.send("Welcome");
 });
 
-const port = process.env.PORT || 9000;
+const port = process.env.PORT || 3000;
 
 // app.use('/auth',authRouter);
 

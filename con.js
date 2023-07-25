@@ -1,27 +1,28 @@
-const mysql = require('mysql2');
-require('dotenv').config();
+const mysql = require("mysql2/promise");
 
-// Connection to the database
-const db = mysql.createConnection({
-  // host: process.env.DB_HOST,
-  // user: process.env.DB_USER,
-  // password: process.env.DB_PASS,
-  // database: process.env.DB_NAME,
-  host:"localhost",
-  user:"root",
-  password:"",
-  database:"lunchbox",
-  insecureAuth: true,
-});
+const dbConfig = {
+  host: process.env.host || mysql ,
+  user: process.env.user || "lunchbox" ,
+  password: process.env.password || "Lunchbox@123" ,
+  database: process.env.database || "lunchbox" ,
+  port: 3306,
+};
 
-db.connect((err) => {
-  if (err) {
+const pool = mysql.createPool(dbConfig);
 
-    console.log('Unable to connect to the database',err);
-    
-  } else {
-    console.log('Connected to the database');
-  }
-});
+function connectWithRetry() {
+  pool
+    .getConnection()
+    .then((connection) => {
+      console.log("Connected to the database");
+      connection.release();
+    })
+    .catch((err) => {
+      console.log("Unable to connect to the database. Retrying in 5 seconds...", err);
+      setTimeout(connectWithRetry, 5000); // Retry after 5 seconds
+    });
+}
 
-module.exports = db;
+connectWithRetry();
+
+module.exports = pool;
